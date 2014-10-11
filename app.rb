@@ -9,9 +9,8 @@ end
 puts "Drag and drop the file into this window: "
 filepath = gets.chomp.gsub('\\', '')
 
-if filepath[-1, 1] == ' '
-  filepath = filepath[0...-1]
-end
+# Remove last character from file path if its a space
+filepath = filepath[0...-1] if filepath[-1, 1] == ' '
 
 TagLib::MPEG::File.open(filepath) do |file|
   tag = file.id3v2_tag
