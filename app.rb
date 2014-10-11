@@ -8,16 +8,24 @@ def change_option(key, val)
   puts "Type the new #{key} or press Enter to leave as it is:"
 end
 
-def play_song(path)
+def convert_to_minutes(length)
+  minutes = (length / 60).floor
+  seconds = length - (minutes * 60)
+
+  return seconds < 10 ? [minutes, "0#{seconds}"] : [minutes, seconds]
+end
+
+def play_song(path, tag)
   player = Audite.new
 
   player.events.on(:position_change) do |pos|
     p = (player.tell / player.length * Curses.cols).ceil
     l = (player.level * Curses.cols).ceil
-    minutes = (player.position.ceil / 60).floor
-    total_minutes = (player.length_in_seconds.ceil / 60).floor
+    current_time = convert_to_minutes(player.position.ceil)
+    total_time = convert_to_minutes(player.length_in_seconds.ceil)
+    time = "#{current_time[0]}:#{current_time[1]} // #{total_time[0]}:#{total_time[1]}"
     Curses.setpos(0, 0)
-    Curses.addstr("#{minutes}:#{player.position.ceil - (minutes * 60)} // #{total_minutes}:#{player.length_in_seconds.ceil - (total_minutes * 60)}")
+    Curses.addstr("#{tag.title}  --  #{time}")
     Curses.setpos(1, 0)
     Curses.addstr("#" * p + " " * (Curses.cols - p))
     Curses.setpos(2, 0)
@@ -26,7 +34,7 @@ def play_song(path)
   end
 
   player.events.on(:complete) do
-    player.close if !player.active?
+    player.close
   end
 
   player.load(path)
@@ -73,7 +81,7 @@ TagLib::MPEG::File.open(filepath) do |file|
 
   change_option 'year', tag.year
   new_year = gets.chomp
-  tag.year = new_year if !new_year.empty?
+  tag.year = new_year.to_i if !new_year.empty?
 
   file.save
   puts "File saved!".green.bold
@@ -83,5 +91,5 @@ TagLib::MPEG::File.open(filepath) do |file|
   puts " 2) No"
   play_song = gets.chomp
 
-  play_song(filepath) if play_song == '1'
+  play_song(filepath, tag) if play_song == '1'
 end
