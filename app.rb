@@ -2,7 +2,7 @@ require 'toc'
 require 'taglib'
 
 def change_option(key, val)
-  puts "\nCurrent #{key}:".bold.black.underline + " " + "#{val}".bold.red
+  puts "\nCurrent #{key}:".bold.black.underline + " " + val.to_s.bold.red
   puts "Type the new #{key} or press Enter to leave as it is:"
 end
 
